@@ -39,8 +39,10 @@ if ($identityName === 'mikrotik' || $identityName === 'routeros') {
 // 读取 node 信息
 $node_path = NODE_DIR . $node_id . '.json';
 if (file_exists($node_path)) {
-    $record = json_decode(file_get_contents($node_path), true);
+    $orig_file = file_get_contents($node_path);
+    $record = json_decode($orig_file, true);
 } else {
+    $orig_file = '';
     $record = [];
 }
 
@@ -65,8 +67,11 @@ if (!$haveRecord) {
     ];
 }
 
-file_put_contents($node_path, json_encode($record, JSON_PRETTY_PRINT));
+$content = json_encode($record, JSON_PRETTY_PRINT);
 
+if ($content !== $orig_file) {
+    file_put_contents($node_path, $content);
+}
 
 // 生成脚本
 $template = file_get_contents('template.rsc');
